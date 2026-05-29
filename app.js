@@ -385,16 +385,33 @@ try {
 
   const archivos = [];
 
-  for (const ev of evidencias) {
-    const base64 = await blobToBase64(ev.blob);
+  const fechaArchivo = new Date()
+  .toISOString()
+  .slice(0, 10)
+  .replaceAll("-", "");
 
-    archivos.push({
-      nombreFinal: `${cedula}_EVIDENCIA_${Date.now()}_${ev.name}`,
-      mimeType: ev.type || "application/octet-stream",
-      size: ev.size || 0,
-      contenidoBase64: base64
-    });
-  }
+const nombreLimpio = empleado.nombre
+  .toUpperCase()
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/[^A-Z0-9]+/g, "_")
+  .replace(/^_+|_+$/g, "");
+
+for (let i = 0; i < evidencias.length; i++) {
+  const ev = evidencias[i];
+  const base64 = await blobToBase64(ev.blob);
+
+  const extension = ev.name.includes(".")
+    ? ev.name.substring(ev.name.lastIndexOf("."))
+    : "";
+
+  archivos.push({
+    nombreFinal: `SST_${cedula}_${nombreLimpio}_${indicador}_${fechaArchivo}_${i + 1}${extension}`,
+    mimeType: ev.type || "application/octet-stream",
+    size: ev.size || 0,
+    contenidoBase64: base64
+  });
+}
 
   const payload = {
     idRegistro: `${cedula}_${Date.now()}`,
